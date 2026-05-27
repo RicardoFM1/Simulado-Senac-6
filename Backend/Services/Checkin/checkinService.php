@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('America/Sao_Paulo');
 
 use Firebase\JWT\JWT;
 
@@ -14,225 +15,105 @@ class CheckinService
         $this->db = db();
     }
 
-    public function buscarConvidadoPorEmail($emailConvidado)
+    public function buscarCheckinPorId($idCheckin)
     {
-        if (empty($emailConvidado)) {
+        if (empty($idCheckin)) {
             throw new Exception('Dados inválidos', 400);
         }
 
-        $buscar = $this->db->prepare('SELECT * FROM convidado WHERE email = :email');
+        $buscar = $this->db->prepare('SELECT * FROM checkin WHERE id_checkin = :id_checkin');
 
         $buscar->execute([
-            ':email' => $emailConvidado
+            ':id_checkin' => $idCheckin
         ]);
 
-        $convidado = $buscar->fetch();
+        $checkin = $buscar->fetch();
 
-        if (empty($convidado)) {
+        if (empty($checkin)) {
             return [
                 'sucesso' => false,
-                'mensagem' => "Convidado não encontrado",
+                'mensagem' => "Checkin não encontrado",
                 'codigo' => 404
             ];
         }
 
         return [
             'sucesso' => true,
-            'dados' => $convidado
-        ];
-    }
-
-    public function buscarConvidadoPorIdMesa($idMesa)
-    {
-        if (empty($idMesa)) {
-            throw new Exception('Dados inválidos', 400);
-        }
-
-        $buscar = $this->db->prepare('SELECT * FROM convidado WHERE id_mesa = :id_mesa');
-
-        $buscar->execute([
-            ':id_mesa' => $idMesa
-        ]);
-
-        $convidado = $buscar->fetch();
-
-        if (empty($convidado)) {
-            return [
-                'sucesso' => false,
-                'mensagem' => "Convidado não encontrado",
-                'codigo' => 404
-            ];
-        }
-
-        return [
-            'sucesso' => true,
-            'dados' => $convidado
+            'dados' => $checkin
         ];
     }
 
 
-    public function listarConvidados()
+
+    public function listarCheckins()
     {
-        $query = $this->db->query("SELECT * FROM convidado");
+        $query = $this->db->query("SELECT * FROM checkin");
 
         $query->execute();
 
-        $convidados = $query->fetchAll();
+        $checkins = $query->fetchAll();
 
         return [
             'sucesso' => true,
-            'dados' => $convidados,
-            'total' => count($convidados)
+            'dados' => $checkins,
+            'total' => count($checkins)
         ];
     }
 
-    public function criarConvidado($convidadoDados)
+    public function criarCheckin($checkinDados, $jwt)
     {
         try {
 
-            $convidadoDados['cpf'] = preg_replace('/\D/', '', $convidadoDados['cpf']);
-            $convidadoDados['telefone'] = preg_replace('/\D/', '', $convidadoDados['telefone']);
+            $buscarConvidado = $this->db->prepare('SELECT * FROM convidado WHERE id_convidado = :id_convidado');
+            $buscarConvidado->execute([
+                ':id_convidado' => $checkinDados['convidado_idconvidado']
+            ]);
 
-            $mesaReferenciada = new MesaService()->buscarMesaPorId($convidadoDados['mesa_idmesa']);
-            $convidadoReferenciando = $this->buscarConvidadoPorIdMesa($convidadoDados['mesa_idmesa']);
+            $convidado = $buscarConvidado->fetch();
 
-            if ($convidadoReferenciando['sucesso'] === 'true') {
-                if (count($convidadoReferenciando['dados']) >= $mesaReferenciada['dados']['capacidade']) {
-                    throw new Exception('Mesa lotada', 409);
-                }
+            if (empty($convidado)) {
+                throw new Exception('Convidado não encontrado', 404);
             }
 
+            if($convidado['confirmacao'] === 'confirmado'){
+                throw new Exception('Convidado já confirmado', 409);
+            }
 
-            $criar = $this->db->prepare('INSERT INTO convidado (nome, sobrenome, email, cpf, telefone, categoria, mesa_idmesa)
-        VALUES (:nome, :sobrenome, :email, :cpf, :telefone, :categoria, :mesa_idmesa)');
+            $dataFormatada = date('Y-m-d');
+
+            $criar = $this->db->prepare('INSERT INTO checkin (usuario_idusuario, convidado_idconvidado, data_e_hora)
+        VALUES (:usuario_idusuario, :convidado_idconvidado, :data_e_hora)');
 
             $criar->execute([
-                ':nome' => $convidadoDados['nome'],
-                ':sobrenome' => $convidadoDados['sobrenome'],
-                ':email' => $convidadoDados['email'],
-                ':cpf' => $convidadoDados['cpf'],
-                ':telefone' => $convidadoDados['telefone'],
-                ':categoria' => $convidadoDados['categoria'],
-                ':mesa_idmesa' => $convidadoDados['mesa_idmesa']
+                ':usuario_idusuario' => $jwt->dados->id_usuario,
+                ':convidado_idconvidado' => $checkinDados['convidado_idconvidado'],
+                ':data_e_hora' => $dataFormatada
+            ]);
 
+            $atualizarConvidado = $this->db->prepare('UPDATE convidado SET confirmacao = "confirmado" WHERE id_convidado = :id_convidado');
+
+            $atualizarConvidado->execute([
+                ':id_convidado' => $checkinDados['convidado_idconvidado']
             ]);
 
             return [
                 'sucesso' => true,
-                'mensagem' => 'Convidado criado com sucesso'
+                'mensagem' => 'Checkin criado com sucesso'
             ];
         } catch (PDOException $e) {
-            if (str_contains($e->getMessage(), 'email')) {
-                throw new Exception('Email já em uso', 409);
+            if (str_contains($e->getMessage(), 'convidado_idconvidado')) {
+                throw new Exception('Convidado já confirmado', 409);
             }
 
-            if (str_contains($e->getMessage(), 'cpf')) {
-                throw new Exception('Cpf já em uso', 409);
+            if (str_contains($e->getMessage(), 'fk_checkin_usuario')) {
+                throw new Exception('Usuário referenciado não encontrado', 409);
             }
 
-            if (str_contains($e->getMessage(), 'fk_convidado_mesa')) {
-                throw new Exception('Mesa referenciada não encontrada', 404);
+            if (str_contains($e->getMessage(), 'fk_checkin_convidado')) {
+                throw new Exception('Convidado referenciado não encontrado', 404);
             }
 
-            throw new Exception('Erro ao criar convidado', 500);
-        }
-    }
-
-
-
-
-    public function atualizarConvidado($convidadoDados, $emailConvidado)
-    {
-        try {
-            $convidadoDados['cpf'] = preg_replace('/\D/', '', $convidadoDados['cpf']);
-            $convidadoDados['telefone'] = preg_replace('/\D/', '', $convidadoDados['telefone']);
-
-            $convidado = $this->buscarConvidadoPorEmail($emailConvidado);
-
-            if ($convidado['sucesso'] === false) {
-                throw new Exception($convidado['mensagem'], $convidado['codigo']);
-            }
-
-            if ($convidadoDados['confirmacao'] !== 'cancelado') {
-                throw new Exception('Só é possível cancelar um convidado', 400);
-            }
-
-            if ($convidado['dados']['confirmacao'] === 'confirmado') {
-                throw new Exception('Não é possivel atualizar um convidado já confirmado', 409);
-            }
-
-            $mesaReferenciada = new MesaService()->buscarMesaPorId($convidadoDados['mesa_idmesa']);
-            $convidadoReferenciando = $this->buscarConvidadoPorIdMesa($convidadoDados['mesa_idmesa']);
-
-            if ($convidadoReferenciando['sucesso'] === 'true') {
-                if (count($convidadoReferenciando['dados']) >= $mesaReferenciada['dados']['capacidade'] && $convidadoDados['mesa_idmesa'] !== $convidado['dados']['mesa_idmesa']) {
-                    throw new Exception('Mesa lotada', 409);
-                }
-            }
-
-            $atualizar = $this->db->prepare('UPDATE convidado SET nome = :nome, sobrenome = :sobrenome, 
-            email = :email, cpf = :cpf, telefone = :telefone, categoria = :categoria, confirmacao = :confirmacao,
-            mesa_idmesa = :mesa_idmesa 
-            WHERE email = :email_antigo');
-
-            $atualizar->execute([
-                ':nome' => $convidadoDados['nome'],
-                ':sobrenome' => $convidadoDados['sobrenome'],
-                ':email' => $convidadoDados['email'],
-                ':cpf' => $convidadoDados['cpf'],
-                ':telefone' => $convidadoDados['telefone'],
-                ':categoria' => $convidadoDados['categoria'],
-                ':mesa_idmesa' => $convidadoDados['mesa_idmesa'],
-                ':email_antigo' => $emailConvidado
-            ]);
-
-            return [
-                'sucesso' => true,
-                'mensagem' => 'Convidado atualizado com sucesso'
-            ];
-        } catch (PDOException $e) {
-            if (str_contains($e->getMessage(), 'email')) {
-                throw new Exception('Email já em uso', 409);
-            }
-
-            if (str_contains($e->getMessage(), 'cpf')) {
-                throw new Exception('Cpf já em uso', 409);
-            }
-
-            if (str_contains($e->getMessage(), 'fk_convidado_mesa')) {
-                throw new Exception('Mesa referenciada não encontrada', 404);
-            }
-
-            throw new Exception('Erro ao atualizar convidado', 500);
-        }
-    }
-
-
-    public function deletarConvidado($emailConvidado)
-    {
-        try {
-            $convidado = $this->buscarConvidadoPorEmail($emailConvidado);
-
-            if ($convidado['sucesso'] === false) {
-                throw new Exception($convidado['mensagem'], $convidado['codigo']);
-            }
-
-            if ($convidado['dados']['confirmacao'] === 'confirmado') {
-                throw new Exception('Não é possível deletar um convidado já confirmado', 409);
-            }
-
-            $deletar = $this->db->prepare('DELETE FROM convidado WHERE email = :email');
-
-            $deletar->execute([
-                ':email' => $emailConvidado
-            ]);
-
-            return [
-                'sucesso' => true,
-                'mensagem' => 'Convidado deletado'
-            ];
-        } catch (PDOException $e) {
-            throw new Exception('Erro ao deletar convidado', 500);
+            throw new Exception('Erro ao criar checkin', 500);
         }
     }
 }

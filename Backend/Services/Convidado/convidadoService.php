@@ -54,9 +54,9 @@ class ConvidadoService
             ':id_mesa' => $idMesa
         ]);
 
-        $convidado = $buscar->fetch();
+        $convidados = $buscar->fetchAll();
 
-        if (empty($convidado)) {
+        if (empty($convidados)) {
             return [
                 'sucesso' => false,
                 'mensagem' => "Convidado não encontrado",
@@ -66,7 +66,7 @@ class ConvidadoService
 
         return [
             'sucesso' => true,
-            'dados' => $convidado
+            'dados' => $convidados
         ];
     }
 

@@ -6,6 +6,9 @@ require_once __DIR__ . "/../vendor/autoload.php";
 require_once __DIR__ . "/../Controllers/Usuario/usuarioController.php";
 require_once __DIR__ . "/../Controllers/Mesa/mesaController.php";
 require_once __DIR__ . "/../Controllers/Convidado/convidadoController.php";
+require_once __DIR__ . "/../Controllers/Checkin/checkinController.php";
+require_once __DIR__ . "/../Controllers/Acompanhante/acompanhanteController.php";
+
 
 
 
@@ -85,6 +88,40 @@ if ($rota === '/convidado') {
     if ($metodo === 'DELETE') {
         $controller->deletarConvidado();
     }
+}
+
+if ($rota === '/checkin') {
+    $controller = new CheckinController();
+
+    if ($metodo === 'GET') {
+        $controller->listarCheckins();
+    }
+    if ($metodo === 'POST') {
+        $controller->criarCheckin();
+    }
+}
+
+if ($rota === '/acompanhante') {
+    $controller = new AcompanhanteController();
+
+    if ($metodo === 'GET') {
+        $controller->listarAcompanhantes();
+    }
+    if ($metodo === 'POST') {
+        $controller->criarAcompanhante();
+    }
+    if ($metodo === 'PUT') {
+        $controller->atualizarAcompanhante();
+    }
+    if ($metodo === 'DELETE') {
+        $controller->deletarAcompanhante();
+    }
+}
+
+if ($rota === '/retrieve') {
+    http_response_code(200);
+    echo json_encode(Middleware::validarMiddleware());
+    exit;
 }
 
 
