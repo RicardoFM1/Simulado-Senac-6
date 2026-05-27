@@ -1,8 +1,13 @@
 <?php
 
 use Dotenv\Dotenv;
+
 require_once __DIR__ . "/../vendor/autoload.php";
 require_once __DIR__ . "/../Controllers/Usuario/usuarioController.php";
+require_once __DIR__ . "/../Controllers/Mesa/mesaController.php";
+require_once __DIR__ . "/../Controllers/Convidado/convidadoController.php";
+
+
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Headers: Authorization, Content-Type');
@@ -16,34 +21,69 @@ $dotenv->load();
 $rota = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $metodo = $_SERVER['REQUEST_METHOD'];
 
-if($metodo === 'OPTIONS'){
+if ($metodo === 'OPTIONS') {
     http_response_code(200);
     echo 'ok';
     exit;
 }
 
-if($rota === '/usuario'){
+if ($rota === '/usuario') {
     $controller = new UsuarioController();
 
-    if($metodo === 'GET'){
+    if ($metodo === 'GET') {
         $controller->listarUsuarios();
     }
-     if($metodo === 'POST'){
+    if ($metodo === 'POST') {
         $controller->criarUsuario();
     }
-     if($metodo === 'PUT'){
+    if ($metodo === 'PUT') {
         $controller->atualizarUsuario();
     }
-     if($metodo === 'DELETE'){
+    if ($metodo === 'DELETE') {
         $controller->deletarUsuario();
     }
 }
 
-if($rota === '/usuario/login'){
+if ($rota === '/usuario/login') {
     $controller = new UsuarioController();
 
-     if($metodo === 'POST'){
+    if ($metodo === 'POST') {
         $controller->fazerLogin();
+    }
+}
+
+
+if ($rota === '/mesa') {
+    $controller = new MesaController();
+
+    if ($metodo === 'GET') {
+        $controller->listarMesas();
+    }
+    if ($metodo === 'POST') {
+        $controller->criarMesa();
+    }
+    if ($metodo === 'PUT') {
+        $controller->atualizarMesa();
+    }
+    if ($metodo === 'DELETE') {
+        $controller->deletarMesa();
+    }
+}
+
+if ($rota === '/convidado') {
+    $controller = new ConvidadoController();
+
+    if ($metodo === 'GET') {
+        $controller->listarConvidados();
+    }
+    if ($metodo === 'POST') {
+        $controller->criarConvidado();
+    }
+    if ($metodo === 'PUT') {
+        $controller->atualizarConvidado();
+    }
+    if ($metodo === 'DELETE') {
+        $controller->deletarConvidado();
     }
 }
 
@@ -54,5 +94,3 @@ echo json_encode([
     'mensagem' => 'Rota não encontrada'
 ]);
 exit;
-
-
