@@ -79,7 +79,7 @@ class CheckinService
                 throw new Exception('Convidado já confirmado', 409);
             }
 
-            $dataFormatada = date('Y-m-d');
+            $dataFormatada = date('Y-m-d H:i:s');
 
             $criar = $this->db->prepare('INSERT INTO checkin (usuario_idusuario, convidado_idconvidado, data_e_hora)
         VALUES (:usuario_idusuario, :convidado_idconvidado, :data_e_hora)');

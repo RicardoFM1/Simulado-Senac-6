@@ -50,7 +50,7 @@ const Home = ({ setTelaAtiva, telaAtiva, setShow, show }) => {
             >
               {telaAtiva === "dashboard" && <Dashboard />}
               {telaAtiva === "convidados" && <Convidados />}
-              {telaAtiva === "checkins" && <Checkin />}
+              {telaAtiva === "checkins" && <Checkins />}
               {telaAtiva === "mesas" && <Mesas />}
               {telaAtiva === "acompanhantes" && <Acompanhantes />}
             </main>

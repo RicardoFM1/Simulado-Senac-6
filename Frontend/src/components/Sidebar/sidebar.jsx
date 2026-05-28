@@ -46,7 +46,7 @@ const Sidebar = ({ telaAtiva, setTelaAtiva, show, setShow }) => {
                 className="text-start"
                 onClick={() => setTelaAtiva("dashboard")}
               >
-                Dashboard
+                Dashboard / Usuários
               </Button>
             </Stack>
             <hr className="mt-5 mb-3" />

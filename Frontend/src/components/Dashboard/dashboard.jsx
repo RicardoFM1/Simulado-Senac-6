@@ -47,6 +47,7 @@ const Dashboard = () => {
 
   const handleClose = () => {
     buscarDashboard();
+    buscarUsuarios();
     setShow(false);
     setShowDeletar(false);
   };
@@ -57,6 +58,8 @@ const Dashboard = () => {
   };
 
   const columns = [
+    { header: "Nº", accessor: "id_usuario" },
+
     { header: "Nome", accessor: "nome" },
     { header: "Email", accessor: "email" },
     { header: "Cpf", accessor: "cpf" },
