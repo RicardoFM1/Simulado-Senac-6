@@ -1,7 +1,7 @@
-@import url("https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Oswald:wght@200..700&family=Playwrite+GB+S+Guides:ital@0;1&display=swap');
 
 :root {
-  --light-coral: rgba(240, 128, 128, 0.781);
+  --light-coral: rgb(240, 128, 128);
   --sweet-salmon: #f4978eff;
   --cor-fundo: #f8ad9dff;
   --peach-fuzz: #fbc4abff;
@@ -9,20 +9,22 @@
 }
 
 body {
+  font-family: "Exo 2", sans-serif;
   background-color: var(--cor-fundo);
+  overflow-x: hidden;
 }
+
 
 p,
 h1,
 h2,
-h3, 
+h3,
 h4,
 h5 {
-  font-family: "Inter", sans-serif;
   color: black;
 }
 
-.btn {
+.btn:not(.ignorar-classe) {
   background-color: var(--peach-fuzz);
   color: black;
   border: none;
@@ -36,5 +38,3 @@ h5 {
   border: none;
   border-right: 10px solid var(--sweet-salmon);
 }
-
-

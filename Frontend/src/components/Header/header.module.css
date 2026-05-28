@@ -1,3 +1,4 @@
 .navbar {
     background-color: var(--light-coral);
+    z-index: 1100;
 }

@@ -1,6 +1,6 @@
 .sidebar{
-    background-color: var(--light-coral);
-    z-index: -100;
+    background-color: var(--light-coral, 100%);
+    z-index: 1000;
     transition: all ease 0.3s;
 
 }

@@ -1,0 +1,22 @@
+.tabela {
+  width: 100%;
+  background-color: var(--cor-fundo);
+  color: black;
+  margin-top: 2.5rem;
+  border-collapse: collapse;
+}
+
+.tabela th,
+.tabela td {
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.tabela thead {
+  background-color: var(--peach-fuzz);
+  color: black;
+}
+
+.tabela tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}   
