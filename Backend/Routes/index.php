@@ -123,11 +123,21 @@ if ($rota === '/acompanhante') {
 }
 
 if ($rota === '/retrieve') {
-    http_response_code(200);
-    echo json_encode(Middleware::validarMiddleware());
-    exit;
+    if($metodo === 'GET'){
+
+        http_response_code(200);
+        echo json_encode(Middleware::validarMiddleware());
+        exit;
+        }
 }
 
+
+if ($rota === '/dashboard') {
+    $controller = new DashboardController();
+    if ($metodo === 'GET'){
+        $controller->listarDashboard();
+    }
+}
 
 http_response_code(404);
 echo json_encode([

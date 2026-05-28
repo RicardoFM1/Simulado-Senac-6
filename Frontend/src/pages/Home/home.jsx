@@ -1,6 +1,11 @@
 import { Col, Container, Row } from "react-bootstrap"
 import Header from "../../components/Header/header"
 import Sidebar from "../../components/Sidebar/sidebar"
+import Dashboard from "../../components/Dashboard/dashboard"
+import Convidados from "../../components/Convidados/convidados"
+import Acompanhantes from "../../components/Acompanhantes/acompanhantes"
+import Checkins from "../../components/Checkins/checkins"
+import Mesas from "../../components/Mesas/mesas"
 
 const Home = ({setTelaAtiva, telaAtiva, setShow, show}) => {
     console.log(telaAtiva)
@@ -16,7 +21,12 @@ const Home = ({setTelaAtiva, telaAtiva, setShow, show}) => {
 
             <Col className="p-5" xs={12} lg={show ? 8 : 12}>
             <main>
-                {telaAtiva === 'dashboard' &&}
+                {telaAtiva === 'dashboard' && <Dashboard/>}
+                {telaAtiva === 'convidados' && <Convidados/>}
+                {telaAtiva === 'acompanhantes' && <Acompanhantes/>}
+                {telaAtiva === 'checkins' && <Checkins/>}
+                {telaAtiva === 'mesas' && <Mesas/>}
+
             </main>
             </Col>
         </Row>

@@ -1,7 +1,9 @@
 const Convidados = () => {
-    return (
-        <></>
-    )
-}
+  return (
+    <>
+      <h1 className="fw-bold">Convidados</h1>
+    </>
+  );
+};
 
-export default Convidados
+export default Convidados;
