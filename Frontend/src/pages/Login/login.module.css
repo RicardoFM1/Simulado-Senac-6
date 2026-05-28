@@ -1,0 +1,12 @@
+.Card{
+    padding: 24px;
+    display: flex;
+    align-content: center;
+}
+
+.Container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
