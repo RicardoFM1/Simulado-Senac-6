@@ -1,8 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
-
+@import url("https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 
 :root {
-  --light-coral: rgba(240, 128, 128, 0.507);
+  --light-coral: rgba(240, 128, 128, 0.781);
   --sweet-salmon: #f4978eff;
   --cor-fundo: #f8ad9dff;
   --peach-fuzz: #fbc4abff;
@@ -13,27 +12,29 @@ body {
   background-color: var(--cor-fundo);
 }
 
-p, h1, h2 {
+p,
+h1,
+h2,
+h3, 
+h4,
+h5 {
   font-family: "Inter", sans-serif;
+  color: black;
 }
 
-.btn{
+.btn {
   background-color: var(--peach-fuzz);
   color: black;
   border: none;
+  border-right: 10px solid var(--sweet-salmon);
 }
 
-.btn:hover{
-  background-color: rgba(243, 178, 148, 0.726);
-  transition: ease 0.3s;
+.btn:hover {
+  background-color: rgba(243, 178, 148, 0.425);
+  transition: all ease 0.3s;
   color: black;
+  border: none;
+  border-right: 10px solid var(--sweet-salmon);
 }
-
-
-
-
-
-
-
 
 

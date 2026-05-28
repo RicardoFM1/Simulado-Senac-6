@@ -11,7 +11,7 @@ const Header = ({setShow, show}) => {
         <Navbar className={style.navbar}>
             <Stack direction="horizontal" gap={4} className="mx-2">
             <Button onClick={() => setShow(!show)}>{show ? <MdMenuOpen size={25}/> : <IoMdMenu size={25}/> }</Button>
-            <Navbar.Brand className="fw-bold fs-3 text-white ">Senac Wedding</Navbar.Brand>
+            <Navbar.Brand className="fw-bold fs-3 ">Senac Wedding</Navbar.Brand>
             </Stack>
         </Navbar>
      
