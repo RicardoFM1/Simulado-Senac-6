@@ -89,7 +89,7 @@ class AcompanhanteService
                 throw new Exception('Convidado referenciado não encontrado', 404);
             }
 
-            throw new Exception('Erro ao criar acompanhante', 500);
+            throw new Exception('Erro ao criar acompanhante' . $e->getMessage(), 500);
         }
     }
 

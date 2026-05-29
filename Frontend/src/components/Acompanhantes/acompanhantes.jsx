@@ -5,8 +5,13 @@ import style from "./acompanhantes.module.css";
 import { Button, Card, Container, Stack } from "react-bootstrap";
 import Tabela from "../Tabela/tabela";
 import { useEffect, useState } from "react";
+import AcompanhanteModal from "../Modais/Acompanhantes/acompanhantesModal";
+import DeleteModal from "../Modais/DeleteModal";
+import { toast } from "react-toastify";
+
 const Acompanhantes = () => {
   const [acompanhantes, setAcompanhantes] = useState([]);
+  const [convidados, setConvidados] = useState([]);
   const [show, setShow] = useState(false);
   const [showDeletar, setShowDeletar] = useState(false);
   const [acompanhanteEscolhido, setAcompanhanteEscolhido] = useState([]);
@@ -18,9 +23,19 @@ const Acompanhantes = () => {
       setAcompanhantes(res.data);
     }
   };
+  const buscarConvidados = async () => {
+    try {
+      const res = await Api.get("/convidado");
+      setConvidados(res.data.dados);
+    } catch (err) {
+      toast.error("Erro ao buscar convidados");
+      console.log(err);
+    }
+  };
 
   useEffect(() => {
     buscarAcompanhantes();
+    buscarConvidados();
   }, []);
 
   const handleEdit = (row) => {
@@ -44,6 +59,46 @@ const Acompanhantes = () => {
     setAcompanhanteEscolhido(null);
   };
 
+  const deletarAcompanhante = async () => {
+    try {
+      const res = await Api.delete(
+        `/acompanhante?id_acompanhante=${acompanhanteEscolhido.id_acompanhante}`,
+      );
+      if (res.status === 200) {
+        toast.success(res.data.mensagem);
+        await buscarAcompanhantes();
+        setShowDeletar(false);
+      }
+    } catch (err) {
+      toast.error(
+        err.response?.data.mensagem || "Erro ao deletar acompanhante",
+      );
+    }
+  };
+
+  const enviarDadosForm = async (dados, editando) => {
+    try {
+      if (editando) {
+        const res = await Api.put(
+          `/acompanhante?id_acompanhante=${acompanhanteEscolhido.id_acompanhante}`,
+          dados,
+        );
+        if (res.status === 200) {
+          toast.success(res.data.mensagem);
+          handleClose();
+        }
+      } else {
+        const res = await Api.post("/acompanhante", dados);
+        if (res.status === 201) {
+          toast.success(res.data.mensagem);
+          handleClose();
+        }
+      }
+    } catch (err) {
+      toast.error(err.response?.data.mensagem || "Erro ao enviar dados");
+    }
+  };
+
   const columns = [
     { header: "Nº", accessor: "id_acompanhante" },
     { header: "Nome", accessor: "nome" },
@@ -61,14 +116,14 @@ const Acompanhantes = () => {
           <Button
             className="ignorar-classe"
             variant="warning"
-            onClick={handleEdit(row)}
+            onClick={() => handleEdit(row)}
           >
             <CiEdit />
           </Button>
           <Button
             className="ignorar-classe"
             variant="danger"
-            onClick={handleDelete(row)}
+            onClick={() => handleDelete(row)}
           >
             <MdDelete />
           </Button>
@@ -87,11 +142,31 @@ const Acompanhantes = () => {
           </Card.Body>
         </Card>
       </Stack>
-
+      <Button
+        className="mt-5 ignorar-classe"
+        variant="info"
+        onClick={handleNovo}
+      >
+        Adicionar novo
+      </Button>
       <Tabela
         columns={columns}
         rows={acompanhantes.dados}
         keyField={"id_acompanhante"}
+      />
+      <AcompanhanteModal
+        show={show}
+        convidados={convidados}
+        dados={acompanhanteEscolhido}
+        handleClose={handleClose}
+        onSubmit={enviarDadosForm}
+      />
+      <DeleteModal
+        show={showDeletar}
+        handleClose={handleClose}
+        handleConfirm={deletarAcompanhante}
+        title="Excluir Acompanhante"
+        message={`Tem certeza que deseja excluir o acompanhante ${acompanhanteEscolhido?.nome}?`}
       />
     </Container>
   );

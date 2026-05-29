@@ -5,6 +5,9 @@ import style from "./dashboard.module.css";
 import { CiEdit } from "react-icons/ci";
 import { MdDelete } from "react-icons/md";
 import Tabela from "../Tabela/tabela";
+import UsuariosModal from "../Modais/Usuarios/usuariosModal";
+import DeleteModal from "../Modais/DeleteModal";
+import { toast } from "react-toastify";
 
 const Dashboard = () => {
   const [dashboard, setDashboard] = useState([]);
@@ -22,22 +25,24 @@ const Dashboard = () => {
     }
   };
 
-  const buscarUsuarios = async() => {
-    const res = await Api.get('/usuario')
+  const buscarUsuarios = async () => {
+    const res = await Api.get("/usuario");
 
-    if(res.status === 200){
-        setUsuarios(res.data.dados)
+    if (res.status === 200) {
+      setUsuarios(res.data.dados);
     }
-  }
+  };
 
   useEffect(() => {
     buscarDashboard();
     buscarUsuarios();
+    console.log(show);
   }, []);
 
   const handleEdit = (row) => {
     setShow(true);
     setUsuarioEscolhido(row);
+    console.log(usuarioEscolhido);
   };
 
   const handleDelete = (row) => {
@@ -56,6 +61,49 @@ const Dashboard = () => {
     setShow(true);
     setUsuarioEscolhido(null);
   };
+  const handleConfirmDelete = async () => {
+    try {
+      const res = await Api.delete(
+        `/usuario?email_usuario=${usuarioEscolhido.email}`,
+      );
+      if (res.status === 200) {
+        toast.success(res.data.mensagem);
+        setShowDelete(false);
+        buscarDados();
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.mensagem || "Erro ao deletar usuário");
+    }
+  };
+
+  const enviarDados = async (dados) => {
+    try {
+      let res;
+      if (usuarioSelecionado) {
+        res = await Api.put(
+          `/usuario?email_usuario=${usuarioEscolhido.email}`,
+          dados,
+        );
+      } else {
+        res = await Api.post("/usuario", dados);
+      }
+
+      if (res.status === 200 || res.status === 201) {
+        toast.success(res.data.mensagem);
+        setShow(false);
+        buscarDados();
+      }
+    } catch (err) {
+      const erros = err.response?.data?.erros;
+      if (erros) {
+        Object.values(erros).forEach((msg) => toast.error(msg));
+      } else {
+        toast.error(err.response?.data?.mensagem || "Erro ao salvar usuário");
+      }
+    }
+  };
+
+  const enviarDados = () => {};
 
   const columns = [
     { header: "Nº", accessor: "id_usuario" },
@@ -69,10 +117,18 @@ const Dashboard = () => {
       accessor: "acoes",
       render: (row) => (
         <Stack gap={3} direction="horizontal">
-          <Button className="ignorar-classe" variant="warning" onClick={handleEdit(row)}>
+          <Button
+            className="ignorar-classe"
+            variant="warning"
+            onClick={() => handleEdit(row)}
+          >
             <CiEdit />
           </Button>
-          <Button className="ignorar-classe" variant="danger" onClick={handleDelete(row)}>
+          <Button
+            className="ignorar-classe"
+            variant="danger"
+            onClick={() => handleDelete(row)}
+          >
             <MdDelete />
           </Button>
         </Stack>
@@ -121,9 +177,27 @@ const Dashboard = () => {
             </Card.Body>
           </Card>
         </Stack>
-
-        <Tabela columns={columns} rows={usuarios} keyField={'id_usuario'} />
-
+        <Button
+          className="mt-5 ignorar-classe"
+          variant="info"
+          onClick={handleNovo}
+        >
+          Adicionar novo
+        </Button>
+        <Tabela columns={columns} rows={usuarios} keyField={"id_usuario"} />
+        <UsuariosModal
+          show={show}
+          dados={usuarioEscolhido}
+          handleClose={handleClose}
+          submit={enviarDados}
+        />
+        <DeleteModal
+          show={showDeletar}
+          handleClose={handleClose}
+          handleConfirm={handleConfirmDelete}
+          title="Excluir Usuário"
+          message={`Tem certeza que deseja excluir o usuário ${usuarioEscolhido?.nome}?`}
+        />
       </Container>
     </>
   );

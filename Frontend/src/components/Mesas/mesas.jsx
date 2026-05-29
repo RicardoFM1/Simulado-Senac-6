@@ -5,6 +5,9 @@ import style from "./mesas.module.css";
 import { Button, Card, Container, Stack } from "react-bootstrap";
 import Tabela from "../Tabela/tabela";
 import { useEffect, useState } from "react";
+import MesaModal from "../Modais/Mesas/mesasModal";
+import DeleteModal from "../Modais/DeleteModal";
+import { toast } from "react-toastify";
 const Mesas = () => {
   const [mesas, setMesas] = useState([]);
   const [show, setShow] = useState(false);
@@ -36,7 +39,7 @@ const Mesas = () => {
   const handleClose = () => {
     buscarMesas();
     setShow(false);
-    setShowDelete(false);
+    setShowDeletar(false);
   };
 
   const handleNovo = () => {
@@ -44,6 +47,49 @@ const Mesas = () => {
     setMesaEscolhida(null);
   };
 
+  const handleConfirmDelete = async () => {
+    try {
+      const res = await Api.delete(`/mesa?id_mesa=${mesaEscolhida.id_mesa}`);
+      if (res.status === 200) {
+        toast.success(res.data.mensagem);
+        setShowDelete(false);
+        buscarMesas();
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.mensagem || "Erro ao deletar mesa");
+    }
+  };
+
+  const enviarDados = async (dados) => {
+    try {
+      let res;
+      if (mesaSelecionada) {
+        res = await Api.put(`/mesa?id_mesa=${mesaEscolhida.id_mesa}`, dados);
+
+        if (res.status === 200) {
+          toast.success(res.data?.mensagem);
+          handleClose();
+        }
+      } else {
+        res = await Api.post("/mesa", dados);
+
+        if (res.status === 201) {
+          toast.success(res.data?.mensagem);
+          handleClose();
+        }
+      }
+    } catch (err) {
+      const erros = err.response?.data?.erros;
+
+      if (erros) {
+        Object.values(erros).forEach((msg) => {
+          toast.error(msg);
+        });
+      } else {
+        toast.error(err.response?.data?.mensagem || "Erro ao enviar dados");
+      }
+    }
+  };
   const columns = [
     { header: "Nº", accessor: "id_mesa" },
     { header: "Capacidade", accessor: "capacidade" },
@@ -56,14 +102,14 @@ const Mesas = () => {
           <Button
             className="ignorar-classe"
             variant="warning"
-            onClick={handleEdit(row)}
+            onClick={() => handleEdit(row)}
           >
             <CiEdit />
           </Button>
           <Button
             className="ignorar-classe"
             variant="danger"
-            onClick={handleDelete(row)}
+            onClick={() => handleDelete(row)}
           >
             <MdDelete />
           </Button>
@@ -82,8 +128,28 @@ const Mesas = () => {
           </Card.Body>
         </Card>
       </Stack>
+      <Button
+        className="mt-5 ignorar-classe"
+        variant="info"
+        onClick={handleNovo}
+      >
+        Adicionar novo
+      </Button>
 
       <Tabela columns={columns} rows={mesas.dados} keyField={"id_mesa"} />
+      <MesaModal
+        show={show}
+        dados={mesaEscolhida}
+        handleClose={handleClose}
+        submit={enviarDados}
+      />
+      <DeleteModal
+        show={showDeletar}
+        handleClose={handleClose}
+        handleConfirm={handleConfirmDelete}
+        title="Excluir Mesa"
+        message={`Tem certeza que deseja excluir a mesa ${mesaEscolhida?.id_mesa}?`}
+      />
     </Container>
   );
 };

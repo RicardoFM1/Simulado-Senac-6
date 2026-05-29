@@ -5,8 +5,11 @@ import style from "./checkins.module.css";
 import { Button, Card, Container, Stack } from "react-bootstrap";
 import Tabela from "../Tabela/tabela";
 import { useEffect, useState } from "react";
+import CheckinModal from "../Modais/Checkins/checkinsModal";
+import { toast } from "react-toastify";
 const Checkins = () => {
   const [checkins, setCheckins] = useState([]);
+  const [convidados, setConvidados] = useState([])
   const [show, setShow] = useState(false);
 
   const buscarCheckins = async () => {
@@ -17,30 +20,46 @@ const Checkins = () => {
     }
   };
 
+   const buscarConvidados = async () => {
+        try {
+            const res = await Api.get('/convidado');
+            setConvidados(res.data.dados);
+        } catch (err) {
+            toast.error("Erro ao carregar convidados para check-in");
+        }
+    };
+
   useEffect(() => {
     buscarCheckins();
+    buscarConvidados();
   }, []);
-
- 
-
- 
- 
 
   const handleClose = () => {
     buscarCheckins();
     setShow(false);
-    
   };
 
   const handleNovo = () => {
     setShow(true);
   };
 
+  const realizarCheckin = async (dados) => {
+        try {
+            const res = await Api.post('/checkin', dados);
+            if (res.status === 201) {
+                toast.success(res.data.mensagem);
+                handleClose();
+            }
+        } catch (err) {
+            toast.error(err.response?.data?.mensagem || "Erro ao realizar check-in");
+        }
+    }
+
   const columns = [
     { header: "Nº", accessor: "id_checkin" },
     { header: "Usuario", accessor: "usuario_idusuario" },
     { header: "Convidado", accessor: "convidado_idconvidado" },
-    { header: "Data e hora", accessor: "data_e_hora" }
+    { header: "Data e hora", accessor: "data_e_hora" },
   ];
   return (
     <Container>
@@ -53,14 +72,17 @@ const Checkins = () => {
           </Card.Body>
         </Card>
       </Stack>
-
-      <Tabela
-        columns={columns}
-        rows={checkins.dados}
-        keyField={"id_checkin"}
-      />
+      <Button
+        className="mt-5 ignorar-classe"
+        variant="info"
+        onClick={handleNovo}
+      >
+        Adicionar novo
+      </Button>
+      <Tabela columns={columns} rows={checkins.dados} keyField={"id_checkin"} />
+      <CheckinModal show={show} submit={realizarCheckin} handleClose={handleClose} convidados={convidados}  />
     </Container>
   );
 };
-
+ 
 export default Checkins;

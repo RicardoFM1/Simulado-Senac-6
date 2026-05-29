@@ -38,3 +38,7 @@ h5 {
   border: none;
   border-right: 10px solid var(--sweet-salmon);
 }
+
+.Toastify_toast-container {
+  z-index: 20000;
+}
