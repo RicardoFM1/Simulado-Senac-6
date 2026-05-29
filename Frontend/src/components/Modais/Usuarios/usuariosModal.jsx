@@ -104,7 +104,7 @@ const UsuariosModal = ({ dados, show, handleClose, submit }) => {
                 required={!editando}
               >
                 <option value="">Selecione...</option>
-                <option value="admin">Administrador</option>
+                <option value="administrador">Administrador</option>
                 <option value="ceremonialista">Cerimonialista</option>
               </Form.Select>
             </Form.Group>

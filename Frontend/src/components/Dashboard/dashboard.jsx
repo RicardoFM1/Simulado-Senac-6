@@ -103,11 +103,10 @@ const Dashboard = () => {
     }
   };
 
-  const enviarDados = () => {};
+
 
   const columns = [
     { header: "Nº", accessor: "id_usuario" },
-
     { header: "Nome", accessor: "nome" },
     { header: "Email", accessor: "email" },
     { header: "Cpf", accessor: "cpf" },
